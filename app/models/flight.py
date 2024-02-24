@@ -13,6 +13,7 @@ class Flight(Base):
     source: Mapped[str] = mapped_column(String)
     destination: Mapped[str] = mapped_column(String)
     departure: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reaching: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r}, email={self.password!r})"
