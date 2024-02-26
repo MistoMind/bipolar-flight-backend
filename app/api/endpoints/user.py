@@ -14,7 +14,7 @@ user_router = APIRouter(prefix="/user")
 def register_user(user: UserCreateSchema, db: Session = Depends(get_db)):
     user.password = generate_password_hash(user.password)
 
-    db_user = get_user_by_email(db, email=user.email)
+    db_user = get_user_by_email(db=db, email=user.email)
 
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -24,7 +24,7 @@ def register_user(user: UserCreateSchema, db: Session = Depends(get_db)):
 
 @user_router.get("/{id}", response_model=UserResponseSchema)
 def get_user(id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, id)
+    user = get_user_by_id(db=db, user_id=id)
 
     if user is None:
         raise HTTPException(status_code=404, detail="User does not exist.")

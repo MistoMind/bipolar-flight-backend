@@ -24,3 +24,7 @@ def get_flight_by_name(db: Session, name: str):
 
 def get_all_flights(db: Session):
     return db.query(Flight).all()
+
+
+def filter_flights(db: Session, *criteria):
+    return db.query(Flight).filter(*criteria).all()
