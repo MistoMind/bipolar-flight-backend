@@ -8,5 +8,5 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(POSTGRES_URL, echo=True)
+engine = create_engine(POSTGRES_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
