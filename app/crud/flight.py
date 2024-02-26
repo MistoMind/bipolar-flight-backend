@@ -28,3 +28,10 @@ def get_all_flights(db: Session):
 
 def filter_flights(db: Session, *criteria):
     return db.query(Flight).filter(*criteria).all()
+
+
+def reserve_available_seats(db: Session, flight_id: int, reserve_seats: int):
+    db.query(Flight).filter(Flight.id == flight_id).update(
+        {Flight.available_seats: Flight.available_seats - reserve_seats}
+    )
+    db.commit()

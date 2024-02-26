@@ -16,7 +16,8 @@ class Flight(Base):
     departure: Mapped[time] = mapped_column(Time)
     arrival: Mapped[time] = mapped_column(Time)
     price: Mapped[float] = mapped_column(Float)
-    seats: Mapped[int] = mapped_column(Integer, default=60)
+    total_seats: Mapped[int] = mapped_column(Integer, default=60)
+    available_seats: Mapped[int] = mapped_column(Integer, default=60)
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r}, email={self.password!r})"
