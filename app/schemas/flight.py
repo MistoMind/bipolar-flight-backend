@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, time
 from pydantic import BaseModel
 
 
@@ -6,8 +6,10 @@ class FlightCreateSchema(BaseModel):
     name: str
     source: str
     destination: str
-    departure: datetime
-    reaching: datetime
+    dep_date: date
+    departure: time
+    arrival: time
+    price: float
 
     class Config:
         from_attributes = True
@@ -23,6 +25,7 @@ class FlightResponseSchema(FlightCreateSchema):
 class FlightSearchSchema(BaseModel):
     source: str
     destination: str
+    dep_date: date
 
     class Config:
         from_attributes = True

@@ -44,7 +44,11 @@ def search_flights(query: FlightSearchSchema, db: Session = Depends(get_db)):
     result_flights = []
 
     for flight in all_flights:
-        if flight.source == query.source and flight.destination == query.destination:
+        if (
+            flight.source == query.source
+            and flight.destination == query.destination
+            and flight.dep_date == query.dep_date
+        ):
             result_flights.append(flight)
 
     return result_flights
