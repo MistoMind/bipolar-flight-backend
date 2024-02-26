@@ -5,13 +5,15 @@ from sqlalchemy.orm import Session
 from app.database.dependencies import get_db
 from app.schemas.user import UserCreateSchema, UserResponseSchema
 from app.crud.user import get_user_by_email, create_user
-
+from app.utils import generate_password_hash
 
 user_router = APIRouter(prefix="/user")
 
 
-@user_router.post("/", response_model=UserResponseSchema)
+@user_router.post("", response_model=UserResponseSchema)
 def register_user(user: UserCreateSchema, db: Session = Depends(get_db)):
+    user.password = generate_password_hash(user.password)
+
     db_user = get_user_by_email(db, email=user.email)
 
     if db_user:
