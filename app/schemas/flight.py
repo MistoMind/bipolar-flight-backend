@@ -10,6 +10,7 @@ class FlightCreateSchema(BaseModel):
     departure: time
     arrival: time
     price: float
+    seats: int = 60
 
     class Config:
         from_attributes = True
