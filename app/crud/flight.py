@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from app.models.flight import Flight
 from app.schemas.flight import FlightCreateSchema
@@ -38,11 +39,13 @@ def filter_flights(db: Session, *criteria):
 
 
 def reserve_available_seats(db: Session, flight_id: int, reserve_seats: int):
-    count = (
-        db.query(Flight)
-        .filter(Flight.id == flight_id)
-        .update({Flight.available_seats: Flight.available_seats - reserve_seats})
-    )
-    db.commit()
+    flight = get_flight_by_id(db=db, flight_id=flight_id)
 
-    return count
+    if flight.available_seats - reserve_seats >= 0:
+        db.query(Flight).filter(Flight.id == flight_id).update(
+            {Flight.available_seats: Flight.available_seats - reserve_seats}
+        )
+
+        db.commit()
+    else:
+        raise HTTPException(status_code=400, detail="Not enough seats available.")

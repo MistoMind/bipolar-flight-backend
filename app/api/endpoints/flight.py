@@ -79,11 +79,8 @@ def book_flight(ticket: TicketBookSchema, db: Session = Depends(get_db)):
     if flight is None:
         raise HTTPException(status_code=404, detail="Flight does not exist.")
 
-    count = reserve_available_seats(
+    reserve_available_seats(
         db=db, flight_id=ticket.flight_id, reserve_seats=ticket.booked_seats
     )
-
-    if count == 0:
-        raise HTTPException(status_code=400, detail="Seats are full.")
 
     return create_ticket(db=db, ticket=ticket)
