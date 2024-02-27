@@ -16,10 +16,13 @@ def create_flight(db: Session, flight: FlightCreateSchema):
 
 
 def delete_flight(db: Session, flight_id: int):
-    count = db.query(Flight).filter(Flight.id == flight_id).delete()
-    db.commit()
+    flight = get_flight_by_id(db=db, flight_id=flight_id)
 
-    return count
+    if flight is None:
+        raise HTTPException(status_code=404, detail="Flight does not exist.")
+
+    db.query(Flight).filter(Flight.id == flight_id).delete()
+    db.commit()
 
 
 def get_flight_by_id(db: Session, flight_id: int):

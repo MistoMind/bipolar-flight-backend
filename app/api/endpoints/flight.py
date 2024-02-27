@@ -37,10 +37,7 @@ def register_flight(flight: FlightCreateSchema, db: Session = Depends(get_db)):
 
 @flight_router.delete("/{id}", response_model=MessageSchema)
 def remove_flight(id: int, db: Session = Depends(get_db)):
-    count = delete_flight(db=db, flight_id=id)
-
-    if count == 0:
-        raise HTTPException(status_code=404, detail="Flight does not exist.")
+    delete_flight(db=db, flight_id=id)
 
     return MessageSchema(message="Flight Removed successfully.")
 
