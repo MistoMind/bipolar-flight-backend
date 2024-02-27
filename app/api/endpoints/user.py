@@ -9,6 +9,7 @@ from app.schemas.message import MessageSchema
 from app.crud.user import get_user_by_email, create_user, get_user_by_id
 from app.crud.ticket import get_ticket_by_user_id, delete_ticket
 from app.auth.utils import generate_password_hash
+from app.auth.dependencies import UserDep
 
 user_router = APIRouter(prefix="/user")
 
@@ -25,9 +26,9 @@ async def register_user(user: UserCreateSchema, db: Session = Depends(get_db)):
     return create_user(db=db, user=user)
 
 
-@user_router.get("/{id}", response_model=UserResponseSchema)
-async def get_user(id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db=db, user_id=id)
+@user_router.get("", response_model=UserResponseSchema)
+async def get_user(user: UserDep, db: Session = Depends(get_db)):
+    user = get_user_by_id(db=db, user_id=user.id)
 
     if user is None:
         raise HTTPException(status_code=404, detail="User does not exist.")
@@ -35,9 +36,9 @@ async def get_user(id: int, db: Session = Depends(get_db)):
     return user
 
 
-@user_router.get("/bookings/{id}", response_model=List[TicketResponseSchema])
-async def get_bookings(id: int, db: Session = Depends(get_db)):
-    tickets = get_ticket_by_user_id(db, user_id=id)
+@user_router.get("/bookings", response_model=List[TicketResponseSchema])
+async def get_bookings(user: UserDep, db: Session = Depends(get_db)):
+    tickets = get_ticket_by_user_id(db, user_id=user.id)
 
     return tickets
 
