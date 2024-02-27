@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.schemas.user import UserCreateSchema, UserResponseSchema
+from app.schemas.ticket import TicketResponseSchema
 from app.crud.user import get_user_by_email, create_user, get_user_by_id
+from app.crud.ticket import get_ticket_by_user_id
 from app.utils import generate_password_hash
 
 user_router = APIRouter(prefix="/user")
@@ -30,3 +32,10 @@ def get_user(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User does not exist.")
 
     return user
+
+
+@user_router.get("/bookings/{id}", response_model=List[TicketResponseSchema])
+def get_bookings(id: int, db: Session = Depends(get_db)):
+    tickets = get_ticket_by_user_id(db, user_id=id)
+
+    return tickets

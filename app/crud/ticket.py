@@ -12,3 +12,7 @@ def create_ticket(db: Session, ticket: TicketBookSchema):
     db.refresh(db_ticket)
 
     return db_ticket
+
+
+def get_ticket_by_user_id(db: Session, user_id: int):
+    return db.query(Ticket).filter_by(user_id=user_id).all()
