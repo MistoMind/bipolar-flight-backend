@@ -10,13 +10,17 @@ from app.schemas.flight import (
     FlightResponseSchema,
     FlightSearchSchema,
 )
+from app.schemas.ticket import TicketBookSchema, TicketResponseSchema
 from app.crud.flight import (
     get_flight_by_name,
     create_flight,
     delete_flight,
     get_flight_by_id,
     filter_flights,
+    reserve_available_seats,
 )
+from app.crud.user import get_user_by_id
+from app.crud.ticket import create_ticket
 
 flight_router = APIRouter(prefix="/flight")
 
@@ -61,3 +65,25 @@ def search_flights(query: FlightSearchSchema, db: Session = Depends(get_db)):
     )
 
     return filtered_flights
+
+
+@flight_router.post("/book", response_model=TicketResponseSchema)
+def book_flight(ticket: TicketBookSchema, db: Session = Depends(get_db)):
+    user = get_user_by_id(db=db, user_id=ticket.user_id)
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User does not exist.")
+
+    flight = get_flight_by_id(db=db, flight_id=ticket.flight_id)
+
+    if flight is None:
+        raise HTTPException(status_code=404, detail="Flight does not exist.")
+
+    count = reserve_available_seats(
+        db=db, flight_id=ticket.flight_id, reserve_seats=ticket.booked_seats
+    )
+
+    if count == 0:
+        raise HTTPException(status_code=400, detail="Seats are full.")
+
+    return create_ticket(db=db, ticket=ticket)
