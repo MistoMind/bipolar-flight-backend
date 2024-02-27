@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.models.flight import Flight
+from app.schemas.message import MessageSchema
 from app.schemas.flight import (
     FlightCreateSchema,
     FlightResponseSchema,
@@ -12,6 +13,7 @@ from app.schemas.flight import (
 from app.crud.flight import (
     get_flight_by_name,
     create_flight,
+    delete_flight,
     get_flight_by_id,
     filter_flights,
 )
@@ -27,6 +29,16 @@ def register_flight(flight: FlightCreateSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Flight already registered")
 
     return create_flight(db=db, flight=flight)
+
+
+@flight_router.delete("/{id}", response_model=MessageSchema)
+def remove_flight(id: int, db: Session = Depends(get_db)):
+    count = delete_flight(db=db, flight_id=id)
+
+    if count == 0:
+        raise HTTPException(status_code=404, detail="Flight does not exist.")
+
+    return MessageSchema(message="Flight Removed successfully.")
 
 
 @flight_router.get("/{id}", response_model=FlightResponseSchema)

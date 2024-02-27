@@ -14,6 +14,13 @@ def create_flight(db: Session, flight: FlightCreateSchema):
     return db_flight
 
 
+def delete_flight(db: Session, flight_id: int):
+    count = db.query(Flight).filter(Flight.id == flight_id).delete()
+    db.commit()
+
+    return count
+
+
 def get_flight_by_id(db: Session, flight_id: int):
     return db.query(Flight).filter(Flight.id == flight_id).first()
 
@@ -31,7 +38,11 @@ def filter_flights(db: Session, *criteria):
 
 
 def reserve_available_seats(db: Session, flight_id: int, reserve_seats: int):
-    db.query(Flight).filter(Flight.id == flight_id).update(
-        {Flight.available_seats: Flight.available_seats - reserve_seats}
+    count = (
+        db.query(Flight)
+        .filter(Flight.id == flight_id)
+        .update({Flight.available_seats: Flight.available_seats - reserve_seats})
     )
     db.commit()
+
+    return count
