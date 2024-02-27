@@ -11,7 +11,9 @@ admin_router = APIRouter(prefix="/admin")
 
 
 @admin_router.post("", response_model=AdminResponseSchema)
-def register_admin(admin_details: AdminCreateSchema, db: Session = Depends(get_db)):
+async def register_admin(
+    admin_details: AdminCreateSchema, db: Session = Depends(get_db)
+):
     if admin_details.admin_create_key != settings.admin_create_key:
         raise HTTPException(status_code=400, detail="Wrong admin create key.")
 

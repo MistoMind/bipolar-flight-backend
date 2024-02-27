@@ -22,7 +22,7 @@ from app.crud.flight import (
     reserve_available_seats,
 )
 from app.crud.user import get_user_by_id
-from app.crud.ticket import create_ticket, get_ticket_by_flight_id, delete_ticket
+from app.crud.ticket import create_ticket, get_tickets_by_flight_id, delete_ticket
 
 flight_router = APIRouter(prefix="/flight")
 
@@ -41,7 +41,7 @@ async def register_flight(
 
 @flight_router.delete("/{id}", response_model=MessageSchema)
 async def remove_flight(admin: AdminDep, id: int, db: Session = Depends(get_db)):
-    tickets = get_ticket_by_flight_id(db=db, flight_id=id)
+    tickets = get_tickets_by_flight_id(db=db, flight_id=id)
 
     for ticket in tickets:
         delete_ticket(db=db, ticket_id=ticket.id)
@@ -61,6 +61,18 @@ async def search_flights(query: FlightSearchSchema, db: Session = Depends(get_db
     )
 
     return filtered_flights
+
+
+@flight_router.get("/bookings/{id}", response_model=List[TicketResponseSchema])
+async def view_bookings_by_flight(
+    admin: AdminDep, id: int, db: Session = Depends(get_db)
+):
+    flight = get_flight_by_id(db=db, flight_id=id)
+
+    if flight is None:
+        raise HTTPException(status_code=404, detail="Flight does not exist.")
+
+    return get_tickets_by_flight_id(db=db, flight_id=id)
 
 
 @flight_router.post("/book", response_model=TicketResponseSchema)
