@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.auth.dependencies import UserDep
+from app.auth.dependencies import AdminDep
 from app.models.flight import Flight
 from app.schemas.message import MessageSchema
 from app.schemas.flight import (
@@ -21,13 +22,15 @@ from app.crud.flight import (
     reserve_available_seats,
 )
 from app.crud.user import get_user_by_id
-from app.crud.ticket import create_ticket
+from app.crud.ticket import create_ticket, get_ticket_by_flight_id, delete_ticket
 
 flight_router = APIRouter(prefix="/flight")
 
 
 @flight_router.post("", response_model=FlightResponseSchema)
-async def register_flight(flight: FlightCreateSchema, db: Session = Depends(get_db)):
+async def register_flight(
+    admin: AdminDep, flight: FlightCreateSchema, db: Session = Depends(get_db)
+):
     db_flight = get_flight_by_name(db=db, name=flight.name)
 
     if db_flight:
@@ -37,7 +40,12 @@ async def register_flight(flight: FlightCreateSchema, db: Session = Depends(get_
 
 
 @flight_router.delete("/{id}", response_model=MessageSchema)
-async def remove_flight(id: int, db: Session = Depends(get_db)):
+async def remove_flight(admin: AdminDep, id: int, db: Session = Depends(get_db)):
+    tickets = get_ticket_by_flight_id(db=db, flight_id=id)
+
+    for ticket in tickets:
+        delete_ticket(db=db, ticket_id=ticket.id)
+
     delete_flight(db=db, flight_id=id)
 
     return MessageSchema(message="Flight Removed successfully.")

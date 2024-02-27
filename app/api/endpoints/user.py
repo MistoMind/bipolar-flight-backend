@@ -44,7 +44,7 @@ async def get_bookings(user: UserDep, db: Session = Depends(get_db)):
 
 
 @user_router.delete("/bookings/{id}", response_model=MessageSchema)
-async def cancel_ticket(id: int, db: Session = Depends(get_db)):
+async def cancel_ticket(user: UserDep, id: int, db: Session = Depends(get_db)):
     delete_ticket(db, ticket_id=id)
 
     return MessageSchema(message="Cancelled ticket successfully.")

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.config import settings
-from app.auth.utils import authenticate_user, create_access_token
+from app.auth.utils import authenticate_user, authenticate_admin, create_access_token
 from app.schemas.token import TokenSchema
 
 auth_router = APIRouter(prefix="/auth")
@@ -18,6 +18,30 @@ async def user_login(
     db: Session = Depends(get_db),
 ):
     user = authenticate_user(
+        db=db, email=form_data.username, password=form_data.password
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+
+    return TokenSchema(access_token=access_token, token_type="bearer")
+
+
+@auth_router.post("/admin/login", response_model=TokenSchema)
+async def admin_login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(get_db),
+):
+    user = authenticate_admin(
         db=db, email=form_data.username, password=form_data.password
     )
 

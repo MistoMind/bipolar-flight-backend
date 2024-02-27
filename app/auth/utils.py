@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.crud.user import get_user_by_email
+from app.crud.admin import get_admin_by_email
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -27,6 +28,18 @@ def authenticate_user(db: Session, email: str, password: str):
         return False
 
     return user
+
+
+def authenticate_admin(db: Session, email: str, password: str):
+    admin = get_admin_by_email(db=db, email=email)
+
+    if not admin:
+        return False
+
+    if not verify_password(password, admin.password):
+        return False
+
+    return admin
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
