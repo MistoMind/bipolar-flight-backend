@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
 
 
 class Settings(BaseSettings):
@@ -9,6 +10,7 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     admin_create_key: str
+    origins: List[str]
 
 
 settings = Settings()
